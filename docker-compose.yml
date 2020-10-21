@@ -1,0 +1,29 @@
+version: '3.1'
+services:
+    jenkins:
+        build:
+            context: ./
+            args:
+                HOST_UID: ${HOST_UID}
+                HOST_GID: ${HOST_GID}
+        container_name: jenkins     
+        restart: unless-stopped
+        environment:
+            - "JAVA_OPTS=-Xmx5g -Xms4G"
+        volumes:
+            - ${HOST_DOCKER}:/var/run/docker.sock
+            - ${HOST_JENKINS_DATA}:/var/jenkins_home
+        ports:
+            - "${HOST_WWW}:8080"
+            - "${HOST_OTHER}:50000"
+        labels:
+            - traefik.backend=jenkins
+            - traefik.frontend.rule=Host:jenkinsprod.dominio.io
+            - traefik.docker.network=jenkins
+            - traefik.web.port=8080    
+        networks:
+            - jenkins
+            
+networks:
+    jenkins:
+        external: true
